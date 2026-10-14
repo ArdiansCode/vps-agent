@@ -1,0 +1,35 @@
+name: Free VPS SSH
+
+on:
+  workflow_dispatch: # Mengizinkan untuk menjalankan VPS secara manual dari tab Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install & Configure SSH Tunnel (Tmate)
+        run: |
+          sudo apt update
+          sudo apt install -y tmate
+
+          # Memulai sesi tmate di background
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait tmate-ready
+
+          # Menampilkan informasi akses SSH dan Web Terminal di Log Actions
+          echo "=========================================================="
+          echo "Akses SSH Terminal:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+          echo "----------------------------------------------------------"
+          echo "Akses Web Terminal (Browser):"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_web}'
+          echo "=========================================================="
+
+      - name: Keep Alive Session
+        run: |
+          # Menjaga server tetap menyala (Maksimal runtime per run: 6 Jam)
+          sleep 6h
