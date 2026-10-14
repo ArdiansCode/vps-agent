@@ -1,0 +1,28 @@
+name: Setup Free VPS
+
+on:
+  workflow_dispatch: # Mengizinkan Anda menjalankan workflow secara manual dari GitHub Dashboard
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install tmate & Setup SSH Access
+        run: |
+          sudo apt update
+          sudo apt install -y tmate
+          tmate -S /tmp/tmate.sock new-session -d
+          tmate -S /tmp/tmate.sock wait tmate-ready
+          echo "=========================================================="
+          echo "Koneksi SSH / Web Terminal Anda:"
+          tmate -S /tmp/tmate.sock display -p '#{tmate_ssh}'
+          tmate -S /tmp/tmate.sock display -p '#{tmate_web}'
+          echo "=========================================================="
+
+      - name: Keep Alive (Menjaga Session Tetap Aktif)
+        run: |
+          # Loop agar workflow tidak langsung selesai (Maksimal runtime GitHub Actions: 6 Jam)
+          sleep 6h
